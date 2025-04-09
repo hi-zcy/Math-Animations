@@ -36,7 +36,7 @@ jobs:
       - name: Install Manim
         run: |
           if [ "${{ inputs.manim-version || 'CE' }}" = "CE" ]; then
-            pip install pangocairo
+            pip install pyopengl pango
             pip install manim
           else
             pip install pyopengl pango
