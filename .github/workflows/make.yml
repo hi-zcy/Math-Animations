@@ -1,0 +1,73 @@
+name: Render Manim Animations
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      manim-version:
+        description: 'CE (Community) or GL (3b1b) version'
+        required: false
+        default: 'CE'
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            ffmpeg \
+            texlive texlive-latex-extra \
+            texlive-fonts-extra texlive-xetex \
+            sox \
+            libcairo2-dev
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install Manim
+        run: |
+          if [ "${{ inputs.manim-version || 'CE' }}" = "CE" ]; then
+            pip install manim
+          else
+            pip install pyopengl pango
+            pip install git+https://github.com/3b1b/manim.git
+          fi
+
+      - name: Render animations
+        run: |
+          mkdir -p animations
+          for file in src/*.py; do
+            if [ -f "$file" ]; then
+              filename=$(basename "$file" .py)
+              object_name=$(sed -n '1s/^# //p' "$file")
+              
+              echo "Rendering $filename with object: $object_name"
+              
+              if [ "${{ inputs.manim-version || 'CE' }}" = "CE" ]; then
+                manim -qm --format=mp4 --media_dir ./render_temp \
+                  -o "$filename" "$file" "$object_name"
+                mv "./render_temp/videos/$object_name/480p15/$filename.mp4" \
+                  "animations/$filename.mp4"
+              else
+                manimgl "$file" "$object_name" \
+                  -o "animations/$filename.mp4" \
+                  -qm --log-level=ERROR
+              fi
+            fi
+          done
+          rm -rf render_temp
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: rendered-animations
+          path: animations/
