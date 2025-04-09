@@ -4,7 +4,10 @@
 # 2. Save this code as e.g., heptadecagon_construction.py
 # 3. Run from the terminal: manim -pql heptadecagon_construction.py HeptadecagonConstruction
 
-from manim import *
+try:
+    from manim import *
+except ImportError:
+    from manimlib import *
 import numpy as np
 
 # Helper function to simulate compass arc for bisection
