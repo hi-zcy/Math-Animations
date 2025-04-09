@@ -67,7 +67,8 @@ jobs:
           rm -rf render_temp
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: rendered-animations
           path: animations/
+          retention-days: 5  
