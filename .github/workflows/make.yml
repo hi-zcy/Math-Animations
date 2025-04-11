@@ -9,7 +9,7 @@ on:
       manim-version:
         description: 'CE (Community) or GL (3b1b) version'
         required: false
-        default: 'GL'
+        default: 'CE'
 
 jobs:
   render:
