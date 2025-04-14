@@ -309,4 +309,4 @@ class HeptadecagonConstruction(Scene):
             FadeOut(note)
         )
         self.wait(2)
-</xaiArtifact>
+        
