@@ -10,6 +10,8 @@ except ImportError:
     # from manimlib import *
     pass
 
+import numpy as np
+
 class HeptadecagonConstruction(Scene):
     def construct(self):
         # Title
@@ -97,6 +99,8 @@ class HeptadecagonConstruction(Scene):
         self.play(Create(circle_D2), FadeIn(dot_P2, dot_Q2))
         
         arc_P2 = Circle(radius=arc_P1_radius, color=ORANGE).move_to(dot_P2.get_center())
+        # arc _
+
         arc_Q2 = Circle(radius=arc_P1_radius, color=ORANGE).move_to(dot_Q2.get_center())
         self.play(Create(arc_P2, arc_Q2))
         
@@ -280,3 +284,29 @@ class HeptadecagonConstruction(Scene):
         note = Tex("Regular heptadecagon constructed!", font_size=36).to_edge(DOWN)
         self.play(Write(note))
         self.wait(2)
+
+        # Fade out all elements except the final heptadecagon
+        self.play(
+            FadeOut(title),
+            FadeOut(circle),
+            FadeOut(dot_C), FadeOut(label_C),
+            FadeOut(dot_A), FadeOut(label_A),
+            FadeOut(dot_B), FadeOut(label_B),
+            FadeOut(diameter),
+            FadeOut(perp_radius),
+            FadeOut(dot_D), FadeOut(label_D),
+            FadeOut(line_DC), FadeOut(line_DB),
+            FadeOut(dot_E), FadeOut(label_E),
+            FadeOut(dot_H), FadeOut(label_H),
+            FadeOut(dot_X), FadeOut(label_X),
+            FadeOut(circle_BH),
+            FadeOut(dot_K), FadeOut(label_K),
+            FadeOut(dot_Y), FadeOut(label_Y),
+            FadeOut(dot_Z), FadeOut(label_Z),
+            FadeOut(dot_P), FadeOut(label_P),
+            FadeOut(dot_P_prime), FadeOut(label_P_prime),
+            FadeOut(dot_P_double_prime), FadeOut(label_P_double_prime),
+            FadeOut(note)
+        )
+        self.wait(2)
+</xaiArtifact>
