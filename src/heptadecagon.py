@@ -171,6 +171,7 @@ class HeptadecagonConstruction(MovingCameraScene):
 
     def draw_heptadecagon(self, circle, start_point):
         """生成并绘制正十七边形"""
+        '''
         vertices = []
         angle_step = 2*PI/17
         for k in range(17):
@@ -184,6 +185,8 @@ class HeptadecagonConstruction(MovingCameraScene):
         
         heptadecagon = Polygon(*vertices, color=BLUE, stroke_width=2)
         self.play(Create(heptadecagon), run_time=3)
+        '''
+        pass
 
     def add_label(self, obj, text, direction):
         """添加动态标签"""
