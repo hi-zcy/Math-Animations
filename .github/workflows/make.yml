@@ -58,7 +58,7 @@ jobs:
               if [ "${{ inputs.manim-version || 'CE' }}" = "CE" ]; then
                 manim -qm --format=mp4 --media_dir ./render_temp \
                   -o "$filename" "$file" "$object_name"
-                mv "./render_temp/videos/$object_name/720p30/$filename.mp4" \
+                mv "./render_temp/videos/$filename/720p30/$filename.mp4" \
                   "animations/$filename.mp4"
               else
                 manimgl "$file" "$object_name" \
