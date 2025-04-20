@@ -1,203 +1,320 @@
-# HeptadecagonConstruction
-# To run this:
-# 1. Make sure you have Manim installed (pip install manim [manimgl])
-# 2. Save this code as e.g., heptadecagon_construction.py
-# 3. Run from the terminal: manim -pql heptadecagon_construction.py HeptadecagonConstruction
-
-try:
-    from manim import *
-except ImportError:
-    # from manimlib import *
-    pass
-
 from manim import *
+import math
 import numpy as np
-from math import sqrt, acos
 
-class HeptadecagonConstruction(MovingCameraScene):
+
+class ConstructHeptadecagon(Scene):
     def construct(self):
-        self.camera.background_color = "#1e1e1e"
-        self.show_construction()
+        # 初始化所有属性
+        self.jp1_line = None
+        self.je_line = None
+        self.jf_line = None
+        self.semicircle = None
+        self.arc = None
+        self.perpendicular = None
 
-    def show_construction(self):
-        # 第一阶段：基本构造
-        main_circle = self.init_construction()
-        self.wait(1)
-        
-        # 第二阶段：关键辅助点
-        E, F_points = self.construct_auxiliary_points(main_circle)
-        self.wait(1)
-        
-        # 第三阶段：最终构造
-        self.final_construction(main_circle, E, F_points)
-        self.wait(2)
+        # 执行构造步骤
+        self.setup_circle_and_points()
+        self.construct_diameter()
+        self.construct_j_point()
+        self.construct_e_point()
+        self.construct_f_point()
+        self.construct_k_point()
+        self.construct_n4_point()
+        self.construct_p4_point()
+        self.complete_heptadecagon()
+        self.cleanup_construction()
 
-    def init_construction(self):
-        """步骤1-3：初始化主圆和基本元素"""
-        main_circle = Circle(radius=3, color=WHITE)
-        center = Dot(ORIGIN, color=YELLOW)
-        
-        # 绘制主圆和中心点
-        self.play(Create(main_circle), Create(center))
-        self.add_label(center, "O", UR)
-        
-        # 添加垂直直径
-        v_diameter = self.add_diameter(main_circle, UP, "AB")
-        # 添加水平直径
-        h_diameter = self.add_diameter(main_circle, RIGHT, "CD")
-        
-        return main_circle
+    def setup_circle_and_points(self):
+        """步骤1：创建初始圆和中心点"""
+        self.circle = Circle(radius=3, color=WHITE)
+        self.center = Dot(ORIGIN, color=YELLOW)
+        self.play(Create(self.circle), Create(self.center))
+        self.center_label = Text("O").next_to(self.center, DOWN)
+        self.play(Write(self.center_label))
+        self.wait()
 
-    def construct_auxiliary_points(self, main_circle):
-        """步骤4-7：构造关键辅助点"""
-        # 构造点E（四分之一半径处）
-        E = self.add_point_E(main_circle)
-        
-        # 构造辅助圆（绿色圆）
-        aux_circle = self.add_aux_circle(E)
-        
-        # 获取交点F和F'
-        F_points = self.find_intersection_FFprime(main_circle, aux_circle)
-        
-        return E, F_points
+    def construct_diameter(self):
+        """步骤2：绘制直径和垂直半径"""
+        # 水平直径
+        self.p1 = Dot(self.circle.point_at_angle(0), color=RED)
+        self.p1_label = Text("P₁").next_to(self.p1, RIGHT)
+        self.diameter = Line(LEFT * 3, RIGHT * 3, color=BLUE)
 
-    def final_construction(self, main_circle, E, F_points):
-        """步骤8-16：最终构造过程"""
-        # 构造切线GI
-        tangent_line = self.add_tangent_line(F_points[0])
-        
-        # 构造角平分线
-        bisector = self.add_angle_bisector(F_points)
-        
-        # 获取初始顶点
-        start_point = self.get_start_point(bisector, main_circle)
-        
-        # 生成正十七边形
-        self.draw_heptadecagon(main_circle, start_point)
+        # 垂直直径
+        self.p2 = Dot(self.circle.point_at_angle(PI / 2), color=GREEN)
+        self.vertical = Line(UP * 3, DOWN * 3, color=BLUE)
 
-    # ---------- 详细工具方法 ----------
-    def add_diameter(self, circle, direction, label):
-        """添加带标签的直径"""
-        diameter = Line(circle.get_left(), circle.get_right()).rotate(
-            angle_of_vector(direction) - PI/2
+        self.play(
+            Create(self.diameter),
+            Create(self.vertical),
+            FadeIn(self.p1),
+            FadeIn(self.p2),
+            Write(self.p1_label)
         )
-        self.play(Create(diameter))
-        self.add_label(diameter, label, direction*1.2)
-        return diameter
+        self.wait()
 
-    def add_point_E(self, circle):
-        """精确构造点E (Richmond关键步骤)"""
-        OE = Line(ORIGIN, circle.point_at_angle(PI/2))
-        OE_quarter = OE.copy().scale(0.25, about_point=ORIGIN)
-        E = OE_quarter.end
-        dot_E = Dot(E, color=GREEN)
-        self.play(Create(dot_E))
-        self.add_label(dot_E, "E", UR)
-        return E
+    def construct_j_point(self):
+        """步骤3：构造J点（OB的四等分点）"""
+        o = self.center.get_center()
+        b = self.p2.get_center()
 
-    def add_aux_circle(self, E):
-        """构造绿色辅助圆（半径OE）"""
-        aux_circle = Circle(radius=np.linalg.norm(E), color=GREEN)
-        self.play(Create(aux_circle))
-        return aux_circle
+        # 显示四等分过程
+        for i in [0.25, 0.5, 0.75]:
+            tick = Dot(o + (b - o) * i, color=YELLOW)
+            self.play(FadeIn(tick), run_time=0.3)
+            self.play(FadeOut(tick))
 
-    def find_intersection_FFprime(self, main_circle, aux_circle):
-        """精确计算两圆交点（使用解析几何）"""
-        # 主圆方程：x² + y² = 9
-        # 辅助圆方程：(x - 0)^2 + (y - 1.5)^2 = (1.5)^2
-        d = 1.5  # 辅助圆圆心纵坐标
-        R = 3     # 主圆半径
-        r = 1.5   # 辅助圆半径
-        
-        # 联立方程求解
-        y = (d**2 + R**2 - r**2) / (2*d)
-        x = sqrt(R**2 - y**2)
-        
-        F1 = np.array([x, y, 0])
-        F2 = np.array([-x, y, 0])
-        
-        dot_F1 = Dot(F1, color=RED)
-        dot_F2 = Dot(F2, color=RED)
-        self.play(Create(dot_F1), Create(dot_F2))
-        self.add_label(dot_F1, "F", UR)
-        self.add_label(dot_F2, "F'", UL)
-        return [F1, F2]
+        # 确定J点（第一个四等分点）
+        self.j_point = Dot(o + (b - o) * 0.25, color=PURPLE)
+        self.j_label = Text("J").next_to(self.j_point, LEFT)
+        self.play(FadeIn(self.j_point), Write(self.j_label))
+        self.wait()
 
-    def add_tangent_line(self, F):
-        """构造F点的切线（黄色线）"""
-        # 切线方程：F_x*x + F_y*y = 9 (主圆半径平方)
-        tangent_line = Line(UP*3, DOWN*3).rotate(
-            angle_of_vector([F[0], F[1], 0]) + PI/2
+    def construct_e_point(self):
+        """步骤4：构造E点（角OJP1的四等分线）"""
+        j = self.j_point.get_center()
+        o = self.center.get_center()
+        p1 = self.p1.get_center()
+
+        # 连接JP1
+        self.jp1_line = Line(j, p1, color=GREEN)
+        self.play(Create(self.jp1_line))
+        self.wait()
+
+        # 计算角OJP1的四等分线方向
+        angle = self.calculate_angle(o, j, p1)
+        quarter_angle = angle / 4
+        direction = np.array([
+            math.cos(quarter_angle + PI / 2),
+            math.sin(quarter_angle + PI / 2),
+            0
+        ])
+
+        # 确定E点位置
+        e_pos = j + direction * 2
+        self.e_point = Dot(e_pos, color=ORANGE)
+        self.e_label = Text("E").next_to(self.e_point, UP)
+        self.je_line = Line(j, e_pos, color=YELLOW)
+
+        self.play(
+            FadeIn(self.e_point),
+            Write(self.e_label),
+            Create(self.je_line)
         )
-        tangent_line.set_color(YELLOW)
-        self.play(Create(tangent_line))
-        return tangent_line
+        self.wait()
 
-    def add_angle_bisector(self, F_points):
-        """构造角平分线（关键步骤）"""
-        bisector_line = Line(
-            start=ORIGIN,
-            end=self.calculate_bisector_direction(F_points),
-            color=PINK
+    def construct_f_point(self):
+        """步骤5：构造F点（45度角点）"""
+        j = self.j_point.get_center()
+        e = self.e_point.get_center()
+
+        # 计算EJ向量
+        ej_dir = (e - j) / np.linalg.norm(e - j)
+        perp_dir = np.array([-ej_dir[1], ej_dir[0], 0])  # 垂直向量
+
+        # 构造45度方向
+        f_dir = (ej_dir + perp_dir) / np.linalg.norm(ej_dir + perp_dir)
+        f_pos = j + f_dir * 2
+
+        self.f_point = Dot(f_pos, color=PINK)
+        self.f_label = Text("F").next_to(self.f_point, DOWN)
+        self.jf_line = Line(j, f_pos, color=PINK)
+
+        self.play(
+            FadeIn(self.f_point),
+            Write(self.f_label),
+            Create(self.jf_line)
         )
-        self.play(Create(bisector_line))
-        return bisector_line
+        self.wait()
 
-    def calculate_bisector_direction(self, F_points):
-        """计算角平分线方向（解析几何法）"""
-        F1 = F_points[0]
-        angle_F1 = np.arctan2(F1[1], F1[0])
-        angle_bisector = angle_F1/2
-        return np.array([np.cos(angle_bisector), np.sin(angle_bisector), 0]) * 3
+    def construct_k_point(self):
+        """步骤6：构造K点（FP1为直径的半圆与OB的交点）"""
+        f = self.f_point.get_center()
+        p1 = self.p1.get_center()
 
-    def get_start_point(self, bisector, circle):
-        """获取初始顶点H"""
-        intersection = self.find_intersection(bisector, circle)
-        dot_H = Dot(intersection, color=ORANGE)
-        self.play(Create(dot_H))
-        self.add_label(dot_H, "H", UR)
-        return intersection
+        # 构造半圆
+        fp1_mid = (f + p1) / 2
+        radius = np.linalg.norm(f - p1) / 2
+        self.semicircle = Arc(
+            radius=radius,
+            start_angle=PI,
+            angle=PI,
+            arc_center=fp1_mid,
+            color=GREEN
+        )
+        self.play(Create(self.semicircle))
 
-    def find_intersection(self, line, circle):
-        """直线与圆的精确交点计算"""
-        a, b = line.get_start()[:2], line.get_end()[:2]
-        dir_vec = b - a
-        t = np.linspace(0, 1, 100)
-        points = [a + t_i*dir_vec for t_i in t]
-        for p in points:
-            if np.linalg.norm(p) >= 2.95 and np.linalg.norm(p) <= 3.05:
-                return np.array([p[0], p[1], 0])
-        return ORIGIN
+        # 计算与OB的交点
+        ob_line = Line(self.center.get_center(), self.p2.get_center())
+        k_pos = self.find_intersection(self.semicircle, ob_line)
 
-    def draw_heptadecagon(self, circle, start_point):
-        """生成并绘制正十七边形"""
-        '''
-        vertices = []
-        angle_step = 2*PI/17
-        for k in range(17):
-            angle = angle_step * k
-            rot_matrix = np.array([
-                [np.cos(angle), -np.sin(angle)],
-                [np.sin(angle), np.cos(angle)]
-            ])
-            vertex = rot_matrix @ start_point[:2]
-            vertices.append(vertex)
-        
-        heptadecagon = Polygon(*vertices, color=BLUE, stroke_width=2)
-        self.play(Create(heptadecagon), run_time=3)
-        '''
-        pass
+        self.k_point = Dot(k_pos, color=TEAL)
+        self.k_label = Text("K").next_to(self.k_point, LEFT)
+        self.play(FadeIn(self.k_point), Write(self.k_label))
+        self.wait()
 
-    def add_label(self, obj, text, direction):
-        """添加动态标签"""
-        label = MathTex(text).scale(0.7).next_to(obj, direction)
-        self.play(Write(label))
-        return label
+    def construct_n4_point(self):
+        """步骤7：构造N4点（以E为圆心，EK为半径的圆与OP1的交点）"""
+        e = self.e_point.get_center()
+        k = self.k_point.get_center()
 
-    # ---------- 数学验证方法 ----------
-    def verify_construction(self):
-        """验证高斯公式（开发用）"""
-        cos_pi_17 = np.cos(PI/17)
-        expected = 0.5*sqrt(17 + sqrt(17) + sqrt(34-2*sqrt(17)) + 2*sqrt(17+3*sqrt(17)-sqrt(34-2*sqrt(17))-2*sqrt(34+2*sqrt(17))))
-        print(f"理论值: {expected:.6f}")
-        print(f"实际构造值: {cos_pi_17:.6f}")
+        # 构造圆
+        ek_radius = np.linalg.norm(e - k)
+        self.arc = Circle(radius=ek_radius, color=ORANGE).move_to(e)
+        self.play(Create(self.arc))
+
+        # 计算与OP1的交点
+        n4_pos = self.find_intersection(self.arc, self.diameter)
+
+        self.n4_point = Dot(n4_pos, color=MAROON)
+        self.n4_label = Text("N₄").next_to(self.n4_point, DOWN)
+        self.play(FadeIn(self.n4_point), Write(self.n4_label))
+        self.wait()
+
+    def construct_p4_point(self):
+        """步骤8：构造P4点（N4的垂线与圆的交点）"""
+        # 构造垂线
+        self.perpendicular = Line(
+            self.n4_point.get_center(),
+            self.n4_point.get_center() + UP * 3,
+            color=PURPLE
+        )
+        self.play(Create(self.perpendicular))
+
+        # 计算与圆的交点
+        p4_pos = self.find_circle_line_intersection(
+            self.circle,
+            self.n4_point.get_center(),
+            UP
+        )
+
+        self.p4_point = Dot(p4_pos, color=RED)
+        self.p4_label = Text("P₄").next_to(self.p4_point, UP)
+        self.play(FadeIn(self.p4_point), Write(self.p4_label))
+        self.wait()
+
+    def complete_heptadecagon(self):
+        """步骤9：完成正十七边形"""
+        # 创建所有顶点
+        self.vertices = []
+        for i in range(17):
+            angle = i * 2 * PI / 17
+            point = self.circle.point_at_angle(angle)
+            self.vertices.append(Dot(point, color=RED))
+
+        # 创建边
+        self.edges = []
+        for i in range(17):
+            start = self.vertices[i].get_center()
+            end = self.vertices[(i + 1) % 17].get_center()
+            self.edges.append(Line(start, end, color=YELLOW))
+
+        # 添加标签
+        self.vertex_labels = []
+        for i in range(17):
+            if i in [0, 4]: continue  # 跳过已标记的点
+            angle = i * 2 * PI / 17
+            pos = UP
+            if angle > 7 * PI / 4 or angle < PI / 4:
+                pos = RIGHT
+            elif PI / 4 <= angle < 3 * PI / 4:
+                pos = UP
+            elif 3 * PI / 4 <= angle < 5 * PI / 4:
+                pos = LEFT
+            else:
+                pos = DOWN
+
+            label = Text(f"P{i + 1}", font_size=24).next_to(
+                self.vertices[i], pos, buff=0.1
+            )
+            self.vertex_labels.append(label)
+
+        # 显示动画
+        self.play(LaggedStart(
+            *[FadeIn(v) for v in self.vertices[1:] if v not in [self.p1, self.p4_point]],
+            lag_ratio=0.1
+        ))
+        self.play(LaggedStart(
+            *[Write(l) for l in self.vertex_labels],
+            lag_ratio=0.1
+        ))
+        self.play(LaggedStart(
+            *[Create(e) for e in self.edges],
+            lag_ratio=0.1
+        ))
+        self.wait()
+
+    def cleanup_construction(self):
+        """清理辅助元素"""
+        to_remove = []
+        if hasattr(self, 'jp1_line'): to_remove.append(self.jp1_line)
+        if hasattr(self, 'je_line'): to_remove.append(self.je_line)
+        if hasattr(self, 'jf_line'): to_remove.append(self.jf_line)
+        if hasattr(self, 'semicircle'): to_remove.append(self.semicircle)
+        if hasattr(self, 'arc'): to_remove.append(self.arc)
+        if hasattr(self, 'perpendicular'): to_remove.append(self.perpendicular)
+        if hasattr(self, 'j_point'): to_remove.append(self.j_point)
+        if hasattr(self, 'e_point'): to_remove.append(self.e_point)
+        if hasattr(self, 'f_point'): to_remove.append(self.f_point)
+        if hasattr(self, 'k_point'): to_remove.append(self.k_point)
+        if hasattr(self, 'n4_point'): to_remove.append(self.n4_point)
+
+        if to_remove:
+            self.play(*[FadeOut(obj) for obj in to_remove])
+            self.wait()
+
+    def calculate_angle(self, a, b, c):
+        """计算三个点形成的角度（弧度）"""
+        # 修改为直接接受坐标而非Dot对象
+        if hasattr(a, 'get_center'): a = a.get_center()
+        if hasattr(b, 'get_center'): b = b.get_center()
+        if hasattr(c, 'get_center'): c = c.get_center()
+
+        ba = a - b
+        bc = c - b
+        cosine_angle = np.dot(ba, bc) / (np.linalg.norm(ba) * np.linalg.norm(bc))
+        return np.arccos(np.clip(cosine_angle, -1, 1))
+
+    def find_intersection(self, curve, line):
+        """计算曲线和直线的交点"""
+        if isinstance(curve, Arc):
+            # 圆弧与直线的交点
+            circle_center = curve.arc_center
+            radius = curve.radius
+            line_start = line.get_start()
+            line_dir = (line.get_end() - line_start) / np.linalg.norm(line.get_end() - line_start)
+
+            # 解二次方程
+            oc = line_start - circle_center
+            a = np.dot(line_dir, line_dir)
+            b = 2 * np.dot(oc, line_dir)
+            c = np.dot(oc, oc) - radius ** 2
+
+            discriminant = b ** 2 - 4 * a * c
+            if discriminant < 0:
+                return line_start  # 无解时返回默认点
+
+            t = (-b - math.sqrt(discriminant)) / (2 * a)
+            return line_start + t * line_dir
+        return line.get_start()
+
+    def find_circle_line_intersection(self, circle, point, direction):
+        """计算圆与直线的交点（给定点和方向）"""
+        center = circle.get_center()
+        radius = circle.radius
+        dir_norm = direction / np.linalg.norm(direction)
+
+        # 解方程 (p + t*d - c)^2 = r^2
+        oc = point - center
+        a = np.dot(dir_norm, dir_norm)
+        b = 2 * np.dot(oc, dir_norm)
+        c = np.dot(oc, oc) - radius ** 2
+
+        discriminant = b ** 2 - 4 * a * c
+        if discriminant < 0:
+            return point  # 无解时返回默认点
+
+        t1 = (-b + math.sqrt(discriminant)) / (2 * a)
+        t2 = (-b - math.sqrt(discriminant)) / (2 * a)
+        return point + t2 * dir_norm  # 返回靠近起点的 
