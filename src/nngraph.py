@@ -15,7 +15,7 @@ class NeuralNetwork(VGroup):
             layer = VGroup()
             for j in range(size):
                 # Create a circle for each node
-                circle = Circle(radius=0.3)
+                circle = Circle(radius=0.5)
                 layer.add(circle)
             # Arrange the nodes vertically
             layer.arrange(DOWN, buff=0.6)
@@ -34,7 +34,7 @@ class NeuralNetwork(VGroup):
                     line = Line(
                         node1.get_center(),
                         node2.get_center(),
-                        stroke_width=1,
+                        stroke_width=1.5,
                         color=GRAY
                     )
                     self.connections.append(line)
@@ -64,13 +64,13 @@ class NeuralNetworkScene(Scene):
             label = Text(f"Layer {i+1}\n({size} nodes)")
             label.next_to(nn.layers[i], UP)
             labels.add(label)
-        self.add(labels)
+        # self.add(labels)
+
+        # Animate the nodes appearing
+        self.play(*[Create(node) for layer in nn.layers for node in layer], run_time=2)
 
         # Animate the connections appearing
         self.play(*[Create(conn) for conn in nn.connections], run_time=2)
-        
-        # Animate the nodes appearing
-        self.play(*[Create(node) for layer in nn.layers for node in layer], run_time=2)
         
         # Keep the animation running for a while
         self.wait(2)
