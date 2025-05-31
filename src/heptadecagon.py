@@ -1,6 +1,7 @@
 # HeptadecagonConstruction
 
 from manim import *
+import numpy as np
 
 class HeptadecagonConstruction(Scene):
     def construct(self):
@@ -13,7 +14,7 @@ class HeptadecagonConstruction(Scene):
         self.play(FadeOut(title), FadeOut(subtitle))
         
         # Gauss quote
-        quote = Tex(r"Mathematics is the queen of sciences, and number theory is the queen of mathematics.", font_size=32)
+        quote = Tex(r"\"Mathematics is the queen of sciences, and number theory is the queen of mathematics.\"", font_size=32)
         author = Tex(r"- Carl Friedrich Gauss", font_size=28).next_to(quote, DOWN)
         self.play(Write(quote), Write(author))
         self.wait(2)
@@ -85,14 +86,21 @@ class HeptadecagonConstruction(Scene):
         # Step 2: Construct ∠OCD = 1/4∠OCA
         A_point = self.A
         line_CA = Line(OC_point, A_point, color=PINK)
-        angle_OCA = Angle(self.line_OB, line_CA, radius=0.4, color=GREEN)
+        
+        # Create angle visualization
+        angle_OCA = Angle(line_CA, self.line_OB, radius=0.4, other_angle=False, color=GREEN)
         angle_label = Tex(r"$\angle OCA$", font_size=20).next_to(angle_OCA, UR, buff=0.1)
         
         self.play(Create(line_CA), Create(angle_OCA), Write(angle_label))
         self.wait(1)
         
+        # Calculate angle value manually
+        vector_OB = self.line_OB.get_unit_vector()
+        vector_CA = line_CA.get_unit_vector()
+        angle_value = np.arccos(np.dot(vector_OB, vector_CA))
+        
         # Construct 1/4 angle
-        quarter_angle = angle_OCA.angle * 0.25
+        quarter_angle = angle_value * 0.25
         line_CD = Line(
             OC_point,
             OC_point + [np.cos(3*PI/2 + quarter_angle), np.sin(3*PI/2 + quarter_angle), 0],
