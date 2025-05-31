@@ -13,7 +13,7 @@ class HeptadecagonConstruction(Scene):
         self.play(FadeOut(title), FadeOut(subtitle))
         
         # Gauss quote
-        quote = Tex(r"\"Mathematics is the queen of sciences, and number theory is the queen of mathematics.\"", font_size=32)
+        quote = Tex(r"Mathematics is the queen of sciences, and number theory is the queen of mathematics.", font_size=32)
         author = Tex(r"- Carl Friedrich Gauss", font_size=28).next_to(quote, DOWN)
         self.play(Write(quote), Write(author))
         self.wait(2)
