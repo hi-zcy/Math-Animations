@@ -30,7 +30,7 @@ class ARCIntro(Scene):
                 height=h, width=0.8, 
                 fill_color=GREY_B, fill_opacity=1,
                 stroke_width=0
-            ).shift(RIGHT*(i - len(heights)/2)
+            ).shift(RIGHT*(i - len(heights)/2))
             buildings.add(building)
         
         ground = Line(LEFT*5, RIGHT*5, color=GREEN).shift(DOWN*2)
