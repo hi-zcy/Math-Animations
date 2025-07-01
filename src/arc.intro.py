@@ -42,7 +42,7 @@ class ARCIntro(ThreeDScene):
             code_string="\n".join(code_lines),  # 修正这里
             tab_width=4,
             # line_numbers=False,
-            style="monokai",
+            # style="monokai",
             font="Monospace",
             language="python",
             line_spacing=0.5,
