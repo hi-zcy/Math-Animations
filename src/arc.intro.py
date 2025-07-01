@@ -63,7 +63,7 @@ class ARCIntro(ThreeDScene):
         )
         
         # 创建3D几何体
-        self.move_camera(phi=75 * DEGREES, theta=-45 * DEGREES, run_time=2)
+        # self.move_camera(phi=75 * DEGREES, theta=-45 * DEGREES, run_time=2)
         
         # 创建旋转的几何体
         cube = Cube(side_length=2, fill_color=logo_blue, 
