@@ -41,12 +41,13 @@ class ARCIntro(ThreeDScene):
         code = Code(
             code_string="\n".join(code_lines),  # 修正这里
             tab_width=4,
-            # line_numbers=False,
-            # style="monokai",
-            font="Monospace",
+            background="window",
+            add_line_numbers=False,
+            formatter_style="emacs",
+            paragraph_config={"font": "Monospace"},
             language="python",
-            line_spacing=0.5,
-            font_size=16,
+            # line_spacing=0.5,
+            # font_size=16,
         ).scale(0.7)
         
         # 初始动画 - 代码显示
