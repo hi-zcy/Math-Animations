@@ -41,7 +41,7 @@ class ARCIntro(ThreeDScene):
         code = Code(
             code_string="\n".join(code_lines),  # 修正这里
             tab_width=4,
-            line_numbers=False,
+            # line_numbers=False,
             style="monokai",
             font="Monospace",
             language="python",
