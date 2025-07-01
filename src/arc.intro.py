@@ -1,5 +1,3 @@
-# ARCIntro
-
 from manim import *
 
 class ARCIntro(ThreeDScene):
@@ -37,10 +35,10 @@ class ARCIntro(ThreeDScene):
             "render(AlgorithmicArt(11))"
         ]
         
+        # 修正：使用code_string参数代替code
         code = Code(
-            code=code_lines,
+            code_string="\n".join(code_lines),  # 修正这里
             tab_width=4,
-            background="rectangle",
             insert_line_no=False,
             style="monokai",
             font="Monospace",
@@ -159,6 +157,3 @@ class ARCIntro(ThreeDScene):
         )
         
         self.wait(2)
-
-# 运行此代码需要安装Manim库
-# 使用命令: manim -pql arc_intro.py ARCIntro
