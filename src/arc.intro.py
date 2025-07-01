@@ -1,6 +1,7 @@
 # ARCIntro
 
 from manim import *
+import random
 
 class ARCIntro(ThreeDScene):
     def construct(self):
