@@ -10,6 +10,7 @@ class ARCIntro(ThreeDScene):
         logo_blue = "#3498db"
         logo_purple = "#9b59b6"
         
+        """
         # 创建代码背景
         code_background = Rectangle(
             width=14, height=8, 
@@ -103,6 +104,7 @@ class ARCIntro(ThreeDScene):
             Create(connecting_lines),
             run_time=2
         )
+        """
         self.wait(1)
         
         # 创建ARC文字
@@ -116,10 +118,10 @@ class ARCIntro(ThreeDScene):
         
         # 文字动画
         self.play(
-            FadeOut(connecting_lines),
-            FadeOut(geometric_group),
-            FadeOut(code),
-            FadeOut(code_background),
+            # FadeOut(connecting_lines),
+            # FadeOut(geometric_group),
+            # FadeOut(code),
+            # FadeOut(code_background),
             FadeIn(arc_text, shift=UP),
             Write(subtitle),
             run_time=2
