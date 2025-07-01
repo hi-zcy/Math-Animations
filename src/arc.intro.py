@@ -1,144 +1,164 @@
 # ARCIntro
+
 from manim import *
 
-class ARCIntro(Scene):
+class ARCIntro(ThreeDScene):
     def construct(self):
-        # 第一部分：艺术元素 - 动态几何艺术
-        colors = [BLUE, GREEN, YELLOW, RED]
-        circles = VGroup()
-        for i in range(12):
-            circle = Circle(radius=0.5 + i*0.1, color=colors[i % 4], fill_opacity=0.1)
-            circle.rotate(i * PI / 6)
-            circles.add(circle)
+        # 配置
+        self.camera.background_color = "#1e1e1e"
+        logo_blue = "#3498db"
+        logo_purple = "#9b59b6"
         
-        self.play(LaggedStart(
-            *[Create(c) for c in circles],
-            lag_ratio=0.1,
-            run_time=2
-        ))
-        self.play(
-            circles.animate.rotate(PI*2),
-            run_time=3,
-            rate_func=linear
+        # 创建代码背景
+        code_background = Rectangle(
+            width=14, height=8, 
+            fill_color="#2c3e50", 
+            fill_opacity=0.8, 
+            stroke_color="#34495e",
+            stroke_width=2
         )
-        self.play(FadeOut(circles))
-
-        # 第二部分：现实生活 - 城市剪影
-        buildings = VGroup()
-        heights = [2, 2.5, 1.8, 3, 2.2, 1.5]
-        for i, h in enumerate(heights):
-            building = Rectangle(
-                height=h, width=0.8, 
-                fill_color=GREY_B, fill_opacity=1,
-                stroke_width=0
-            ).shift(RIGHT*(i - len(heights)/2))
-            buildings.add(building)
         
-        ground = Line(LEFT*5, RIGHT*5, color=GREEN).shift(DOWN*2)
-        sun = Circle(radius=0.8, color=YELLOW, fill_opacity=1).shift(UP*1 + LEFT*3)
-        
-        self.play(
-            DrawBorderThenFill(buildings),
-            Create(ground),
-            run_time=2
-        )
-        self.play(GrowFromCenter(sun))
-        self.play(
-            sun.animate.shift(RIGHT*6),
-            run_time=3
-        )
-        self.play(FadeOut(Group(buildings, ground, sun)))
-
-        # 第三部分：编程元素 - 代码动画
-        code_str = '''def create_art():
-    pattern = generate_fractal()
-    render(pattern)
-
-# Real-world connection
-simulate_physics(artwork)
-
-# Creative coding
-apply_neural_style()'''
+        # 创建动态代码
+        code_lines = [
+            "def create_art():",
+            "    particles = []",
+            "    for i in range(1000):",
+            "        p = Particle()",
+            "        p.color = gradient(HSV)",
+            "        p.apply_force(vector_field)",
+            "        particles.append(p)",
+            "    return particles",
+            "",
+            "class AlgorithmicArt:",
+            "    def __init__(self, complexity):",
+            "        self.fractals = generate_fractals(complexity)",
+            "        self.transform()",
+            "",
+            "render(AlgorithmicArt(11))"
+        ]
         
         code = Code(
-            code=code_str,
+            code=code_lines,
             tab_width=4,
             background="rectangle",
-            language="Python",
+            insert_line_no=False,
+            style="monokai",
             font="Monospace",
-            style="monokai"
+            language="python",
+            line_spacing=0.5,
+            font_size=16,
         ).scale(0.7)
         
+        # 初始动画 - 代码显示
+        self.play(DrawBorderThenFill(code_background))
         self.play(Write(code), run_time=3)
-        self.play(code.animate.shift(UP*1.5), run_time=1.5)
+        self.wait(1)
         
-        # 第四部分：ARC标志组合（纯Manim图形）
-        arc_text = Text("ARC", font="Sans Serif", weight=BOLD, gradient=(BLUE, GREEN, YELLOW))
-        arc_text.scale(2)
-        
-        # 创建纯图形图标
-        icons = VGroup()
-        
-        # 艺术图标：调色板（圆形+矩形）
-        palette = VGroup(
-            Circle(radius=0.4, color=WHITE, fill_opacity=1),
-            Rectangle(width=0.3, height=0.6, fill_opacity=1, color=WHITE)
-                .next_to(Circle().get_center(), RIGHT, buff=0)
-        )
-        # 添加颜料点
-        paint_colors = [RED, BLUE, GREEN, YELLOW]
-        for i, color in enumerate(paint_colors):
-            dot = Dot(radius=0.15, color=color, fill_opacity=1)
-            angle = i * PI/2
-            dot.move_to(palette[0].get_center() + 0.25 * np.array([np.cos(angle), np.sin(angle), 0]))
-            palette.add(dot)
-        art_icon = palette.scale(0.8).next_to(arc_text, UP, buff=1)
-        
-        # 现实生活图标：地球（圆形+经纬线）
-        earth = VGroup(
-            Circle(radius=0.5, color=BLUE, fill_opacity=0.8),
-            Arc(radius=0.5, angle=PI, color=GREEN).rotate(PI/2),
-            Arc(radius=0.5, angle=PI, color=GREEN)
-        )
-        life_icon = earth.scale(0.8).next_to(arc_text, RIGHT, buff=1)
-        
-        # 编程图标：代码符号（两个尖括号）
-        code_icon = VGroup(
-            Polygon([-0.4,0,0], [0,-0.4,0], [0,0.4,0], color=PURPLE),
-            Polygon([0.4,0,0], [0,-0.4,0], [0,0.4,0], color=PURPLE).flip(RIGHT)
-        ).scale(0.8).next_to(arc_text, LEFT, buff=1)
-        
-        icons.add(art_icon, life_icon, code_icon)
-        
-        # 最终动画
+        # 代码转化为几何形状
         self.play(
-            Transform(code, arc_text),
-            FadeIn(icons)
+            code.animate.scale(0.7).to_edge(LEFT, buff=1),
+            code_background.animate.scale(0.7).to_edge(LEFT, buff=1)
         )
         
-        # 添加动态旋转效果
+        # 创建3D几何体
+        self.move_camera(phi=75 * DEGREES, theta=-45 * DEGREES, run_time=2)
+        
+        # 创建旋转的几何体
+        cube = Cube(side_length=2, fill_color=logo_blue, 
+                   fill_opacity=0.8, stroke_color=WHITE)
+        sphere = Sphere(radius=1.2, resolution=(24,24), 
+                       fill_color=logo_purple, fill_opacity=0.9)
+        torus = Torus(major_radius=1.5, minor_radius=0.5, 
+                     fill_color="#e74c3c", fill_opacity=0.7)
+        
+        # 几何体组
+        geometric_group = VGroup(cube, sphere, torus).arrange(RIGHT, buff=2).shift(RIGHT*3)
+        
+        # 几何体动画
         self.play(
-            icons.animate.rotate(2*PI, about_point=arc_text.get_center()),
-            run_time=4,
-            rate_func=linear
+            FadeIn(cube),
+            Rotate(cube, axis=UP, angle=TAU, run_time=3, rate_func=smooth)
         )
-        
-        subtitle = Text("Art · Real life · Coding", font_size=36).next_to(arc_text, DOWN)
-        self.play(Write(subtitle))
-        self.wait(2)
-        
-        # 结束动画：图标融合到文字中
         self.play(
-            art_icon.animate.move_to(arc_text[0].get_center()),
-            life_icon.animate.move_to(arc_text[1].get_center()),
-            code_icon.animate.move_to(arc_text[2].get_center()),
+            FadeIn(sphere),
+            Rotate(sphere, axis=RIGHT, angle=TAU, run_time=3, rate_func=smooth)
+        )
+        self.play(
+            FadeIn(torus),
+            Rotate(torus, axis=OUT, angle=TAU, run_time=3, rate_func=smooth)
+        )
+        self.wait(0.5)
+        
+        # 连接代码和几何的线条
+        connecting_lines = VGroup()
+        for i in range(8):
+            start = code.get_corner(UR) + [0, -i*0.2, 0]
+            end = cube.get_left() + [0, 0.5 - i*0.1, 0]
+            line = Line(start, end, stroke_width=2, stroke_color=BLUE)
+            connecting_lines.add(line)
+        
+        self.play(
+            Create(connecting_lines),
+            run_time=2
+        )
+        self.wait(1)
+        
+        # 创建ARC文字
+        arc_text = Text("ARC", font="Arial Rounded MT Bold", 
+                        weight=BOLD, gradient=(logo_blue, logo_purple))
+        arc_text.scale(3)
+        
+        subtitle = Text("Art of Coding", font="Arial", 
+                        color=WHITE, font_size=36)
+        subtitle.next_to(arc_text, DOWN, buff=0.5)
+        
+        # 文字动画
+        self.play(
+            FadeOut(connecting_lines),
+            FadeOut(geometric_group),
+            FadeOut(code),
+            FadeOut(code_background),
+            FadeIn(arc_text, shift=UP),
+            Write(subtitle),
             run_time=2
         )
         
-        # 文字放大效果
+        # 文字特效
         self.play(
-            arc_text.animate.scale(1.5),
-            FadeOut(subtitle),
-            run_time=1.5
+            arc_text.animate.scale(1.2),
+            subtitle.animate.scale(1.1),
+            run_time=1.5,
+            rate_func=there_and_back
         )
+        
+        # 最终光效
+        glow = VGroup()
+        colors = [logo_blue, logo_purple, "#e74c3c", "#2ecc71"]
+        for i in range(20):
+            circle = Circle(radius=0.5 + i*0.2, 
+                          stroke_width=0.5 + i*0.1,
+                          stroke_opacity=1.0 - i*0.05)
+            circle.set_stroke(color=random.choice(colors), width=circle.stroke_width)
+            glow.add(circle)
+        
+        glow.move_to(arc_text)
+        self.play(
+            LaggedStart(
+                *[Create(g) for g in glow],
+                lag_ratio=0.1
+            ),
+            run_time=3
+        )
+        
+        # 渐变消失
+        self.play(
+            FadeOut(glow),
+            FadeOut(arc_text),
+            FadeOut(subtitle),
+            run_time=2
+        )
+        
         self.wait(2)
+
+# 运行此代码需要安装Manim库
+# 使用命令: manim -pql arc_intro.py ARCIntro
